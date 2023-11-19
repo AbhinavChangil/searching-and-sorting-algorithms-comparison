@@ -12,6 +12,15 @@ def counting_algorithm(arr):
         result.extend([i] * counts[i])
     return result
 
+def quick_sort(arr):
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return quick_sort(left) + middle + quick_sort(right)
+
 def insertion_sort(arr):
     for i in range(1, len(arr)):
         key = arr[i]
@@ -29,21 +38,22 @@ def selection_sort(arr):
                 min_idx = j
         arr[i], arr[min_idx] = arr[min_idx], arr[i]
 
-def linear_search_unordered(arr, target):
+def linear_search_unordered(arr):
+    target=random.choice(data)
     for i in range(len(arr)):
         if arr[i] == target:
             return i
     return -1
 
 class HashTable:
-    def __init__(self):
-        self.__dict__['table'] = {}
+    def init(self):
+        self.dict['table'] = {}
 
     def insert(self, key, value):
-        self.__dict__['table'][key] = value
+        self.dict['table'][key] = value
 
     def search(self, key):
-        return self.__dict__['table'].get(key, None)
+        return self.dict['table'].get(key, None)
 
 def binary_search(arr):
     target = target=random.choice(data)
@@ -65,47 +75,19 @@ def measure_time(algorithm, *args, **kwargs):
     return end_time - start_time
 
 # Generate random data for testing
-data_sizes = [10000]
+data_sizes = [20000]
 random_data = {size: random.sample(range(size * 10), size) for size in data_sizes}
+
+
+
 
 # Compare and print the time taken by each algorithm for each data size
 for size in data_sizes:
     print(f"\nData Size: {size}")
     data = random_data[size]
 
-    counting_algorithm_time = measure_time(counting_algorithm, data.copy())
-    print(f"Counting Algorithm Time: {counting_algorithm_time:.6f} seconds")
 
-    insertion_sort_time = measure_time(insertion_sort, data.copy())
-    print(f"Insertion Sort Time: {insertion_sort_time:.6f} seconds")
 
-    selection_sort_time = measure_time(selection_sort, data.copy())
-    print(f"Selection Sort Time: {selection_sort_time:.6f} seconds")
-
-    linear_search_unordered_time = measure_time(linear_search_unordered, data.copy(), target=random.choice(data))
-    print(f"Linear Search (Unordered) Time: {linear_search_unordered_time:.6f} seconds")
-
-    hash_table = HashTable()
-    for num in data:
-        hash_table.insert(num, num)
-    hash_table_search_time = measure_time(hash_table.search, key=random.choice(data))
-    print(f"Hash Table Search Time: {hash_table_search_time:.6f} seconds")
-
-    sorted_data = sorted(data.copy())
-    binary_search_time = measure_time(binary_search, sorted_data)
-    print(f"Binary Search Time: {binary_search_time:.6f} seconds")
-
-    # Compare the times and print the name of the fastest algorithm
-    fastest_algorithm = min(
-        ("Counting Algorithm", counting_algorithm_time),
-        ("Insertion Sort", insertion_sort_time),
-        ("Selection Sort", selection_sort_time),
-        ("Linear Search (Unordered)", linear_search_unordered_time),
-        ("Hash Table Search", hash_table_search_time),
-        ("Binary Search", binary_search_time),
-        key=lambda x: x[1]
-    )
-    print(f"The fastest algorithm is {fastest_algorithm[0]} with a time of {fastest_algorithm[1]:.6f} seconds.\n")
 
 
 import sys
@@ -119,10 +101,12 @@ class AlgorithmComparisonApp:
         master.geometry('600x400')
 
         self.algorithm1_label = Label(master, text='Algorithm 1:')
-        self.algorithm1_entry = Entry(master)
+        self.algorithm1_combobox = ttk.Combobox(master, values=['counting_algorithm', 'insertion_sort', 'selection_sort', 'quick_sort', 'linear_search_unordered', 'binary_search'])
+        self.algorithm1_combobox.set('counting_algorithm')
 
         self.algorithm2_label = Label(master, text='Algorithm 2:')
-        self.algorithm2_entry = Entry(master)
+        self.algorithm2_combobox = ttk.Combobox(master, values=['counting_algorithm', 'insertion_sort', 'selection_sort', 'quick_sort', 'linear_search_unordered', 'binary_search'])
+        self.algorithm2_combobox.set('insertion_sort')
 
         self.run_button = Button(master, text='Run Comparison', command=self.run_comparison)
 
@@ -130,9 +114,9 @@ class AlgorithmComparisonApp:
         self.results_text = Text(master)
 
         self.algorithm1_label.pack()
-        self.algorithm1_entry.pack()
+        self.algorithm1_combobox.pack()
         self.algorithm2_label.pack()
-        self.algorithm2_entry.pack()
+        self.algorithm2_combobox.pack()
         self.run_button.pack()
         self.results_label.pack()
         self.results_text.pack()
@@ -141,9 +125,9 @@ class AlgorithmComparisonApp:
         self.fastest_text = Text(master, height=2, state=tk.DISABLED)
 
         self.algorithm1_label.pack()
-        self.algorithm1_entry.pack()
+        self.algorithm1_combobox.pack()
         self.algorithm2_label.pack()
-        self.algorithm2_entry.pack()
+        self.algorithm2_combobox.pack()
         self.run_button.pack()
         self.results_label.pack()
         self.results_text.pack()
@@ -151,8 +135,8 @@ class AlgorithmComparisonApp:
         self.fastest_text.pack()
 
     def run_comparison(self):
-        algorithm1_name = self.algorithm1_entry.get().strip()
-        algorithm2_name = self.algorithm2_entry.get().strip()
+        algorithm1_name = self.algorithm1_combobox.get().strip()
+        algorithm2_name = self.algorithm2_combobox.get().strip()
 
         if not algorithm1_name or not algorithm2_name:
             self.show_error('Error', 'Please enter names for both algorithms.')
@@ -166,7 +150,7 @@ class AlgorithmComparisonApp:
             return
 
         self.results_text.delete(1.0, tk.END)
-        for size in [10000]:
+        for size in [20000]:
             result = f"\nData Size: {size}\n"
             data = random.sample(range(size * 10), size)
 
@@ -175,6 +159,12 @@ class AlgorithmComparisonApp:
 
             algorithm2_time = measure_time(algorithm2, data.copy())
             result += f"{algorithm2_name} Time: {algorithm2_time:.6f} seconds\n"
+
+            
+            if(algorithm1_time<algorithm2_time):
+                result += f"\n{algorithm1_name}\n"
+            else:
+                result += f"\n{algorithm2_name}\n"
 
             self.results_text.insert(tk.END, result)
 
